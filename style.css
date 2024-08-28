@@ -58,7 +58,7 @@ button:hover {
     background-color: #444;
 }
 
-#backPieceCanvas {
+/*#backPieceCanvas {
     background: #545355;
     border-radius: 10px;
     border: 1px solid black;
@@ -73,7 +73,7 @@ button:hover {
     font-size: 15px;
     color: white;
     font-weight: bold;
-}
+}*/
 
 #tutorialMessage {
     display: none;
