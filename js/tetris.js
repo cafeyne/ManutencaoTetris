@@ -39,7 +39,9 @@ function generateRandomPiece() {
 function newShape() {
     if (!nextPiece) {
         nextPiece = generateRandomPiece();
+        nextNextPiece = generateRandomPiece();
     }
+
     var id = nextPiece.id;
     var shape = nextPiece.shape;
 
@@ -56,9 +58,12 @@ function newShape() {
             }
         }
     }
-    
-    nextPiece = generateRandomPiece();
-    drawNextPiece();
+
+    nextPiece = nextNextPiece;
+    nextNextPiece = generateRandomPiece();
+
+    drawNextPiece('nextPieceCanvas1', nextPiece);
+    drawNextNextPiece('nextPieceCanvas2', nextNextPiece);
 
     // A nova peça começa a se mover
     freezed = false;
@@ -68,13 +73,19 @@ function newShape() {
 }
 
 // Desenha a próxima peça no canvas nextPieceCanvas
-function drawNextPiece() {
-    const canvas = document.getElementById('nextPieceCanvas1', 'nextPieceCanvas2');
+function drawNextPiece(canvasId, piece) {
+    const canvas = document.getElementById(canvasId);
+
+    if (!canvas) {
+        console.error(`Canvas with id ${canvasId} not found`);
+        return;
+    }
+    
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    var shape = nextPiece.shape;
-    var id = nextPiece.id;
+    var shape = piece.shape;
+    var id = piece.id;
 
     // Calcula a largura e altura da peça
     var minX = 4, maxX = 0, minY = 4, maxY = 0;
@@ -108,6 +119,52 @@ function drawNextPiece() {
     }
 }
 
+// Desenha a próxima da próxima peça no canvas nextPieceCanvas2
+function drawNextNextPiece(canvasId, piece) {
+    const canvas = document.getElementById(canvasId);
+
+    if (!canvas) {
+        console.error(`Canvas with id ${canvasId} not found`);
+        return;
+    }
+    
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    var shape = piece.shape;
+    var id = piece.id;
+
+    // Calcula a largura e altura da peça
+    var minX = 4, maxX = 0, minY = 4, maxY = 0;
+    for (var y = 0; y < 4; ++y) {
+        for (var x = 0; x < 4; ++x) {
+            var i = 4 * y + x;
+            if (shape[i]) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+    }
+
+    var pieceWidth = maxX - minX + 1;
+    var pieceHeight = maxY - minY + 1;
+
+    // Calcula o offset para centralizar a peça
+    var offsetX = Math.floor((canvas.width - pieceWidth * 20) / 2);
+    var offsetY = Math.floor((canvas.height - pieceHeight * 20) / 2);
+
+    context.fillStyle = colors[id]; // Define a cor da peça
+    for (var y = 0; y < 4; ++y) { 
+        for (var x = 0; x < 4; ++x) {
+            var i = 4 * y + x;
+            if (shape[i]) {
+                context.fillRect(offsetX + (x - minX) * 20, offsetY + (y - minY) * 20, 20, 20);
+            }
+        }
+    }
+}
 // clears the board
 function init() {
     for ( var y = 0; y < ROWS; ++y ) {
