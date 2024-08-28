@@ -167,7 +167,7 @@ function rotate( current ) {
     return newCurrent;
 }
 
-// Verofoca se a linha será limpa
+// Verifica se a linha será limpa
 function clearLines() {
     for (var y = ROWS - 1; y >= 0; --y) {
         if (isRowFilled(y)) {
