@@ -10,6 +10,10 @@
     <audio id="clearsound" src="sound/pop.ogg" preload="auto"></audio>
 
     <div id="game-container">
+        <div id="backPiece">
+            <div>Peça anterior:</div>
+            <canvas id="backPieceCanvas" width="115" height="105"></canvas>
+        </div>
         <div id="button-container">
             <button id="playbutton" onclick="playButtonClicked();">Jogar</button>
             <button id="tutorialButton" onclick="toggleTutorial();">Tutorial</button>
