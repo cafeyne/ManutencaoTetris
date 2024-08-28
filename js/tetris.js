@@ -69,7 +69,7 @@ function newShape() {
 
 // Desenha a próxima peça no canvas nextPieceCanvas
 function drawNextPiece() {
-    const canvas = document.getElementById('nextPieceCanvas');
+    const canvas = document.getElementById('nextPieceCanvas1', 'nextPieceCanvas2');
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
 

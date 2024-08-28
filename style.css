@@ -1,39 +1,48 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom, #1E1B22, #5F5F5F);
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    display: flex;
+    align-items: flex-start;
+}
+
+#button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-right: 20px; /* Espaço entre os botões e o canvas */
+}
+
 canvas {
-    display: block;
-    margin: auto;
     border: 1px solid black;
 }
 
-#playbutton {
-    width: 100px;
-    height: 50px;
-    display: block;
-    font-family: Arial, sans-serif;
-    font-size: 30px;
-    font-weight: bold;
-    background-color: white;
-    cursor: pointer;
-    margin-top: 10px;
+#tetris {
+    background: #545355;
+    border-radius: 10px;
 }
 
-.header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 10px auto 0;
-}
-#tutorialButton{
-    width: 150px;
-    height: 50px;
-    display: block;
-    font-family: Arial, sans-serif;
-    font-size: 30px;
-    font-weight: bold;
-    background-color: white;
+button {
+    padding: 10px;
+    background-color: #666567;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
     cursor: pointer;
-    margin-top: 10px;
-    margin-left: 20px;
+    font-size: 16px;
 }
+
+button:hover {
+    background-color: #444;
+}
+
 
 #tutorialMessage {
     display: none;
@@ -66,22 +75,23 @@ canvas {
     color: red; /* Altere a cor do "X" quando o mouse passar por cima */
 }
 #score-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;    
+    position: absolute;
+    top: 70%;
+    left: 64%;
     font-family: Arial, sans-serif;
     font-size: 18px;
     margin-left: 20px;
     font-weight: bold;
+    color: white;
 }
 
-#score {
+/* #score {
     margin-left: 5px;
 }
 
 #highscore {
     margin-left: 5px;
-}
+} */
 
 #gameOverMessage {
     display: none;
@@ -117,16 +127,35 @@ canvas {
     cursor: pointer;
 }
 
-#nextPieceCanvas {
+#nextPieceCanvas1 {
+    background: #545355;
+    border-radius: 10px;
     border: 1px solid black;
 }
 
-#nextPiece {
+#nextPiece1 {
     position: absolute;
     top: 5%;
-    left: 61%;
+    left: 65%;
     text-align: center;
     font-family: Arial, sans-serif;
     font-size: 15px;
+    color: white;
+    font-weight: bold;
+}
+#nextPieceCanvas2 {
+    background: #545355;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+#nextPiece2 {
+    position: absolute;
+    top: 27%;
+    left: 65%;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    color: white;
     font-weight: bold;
 }
