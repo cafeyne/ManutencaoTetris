@@ -18,38 +18,43 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 75%;
-    margin-right: 15%; /* Espaço entre os botões e o canvas */
+    margin-top: 85%;
+    margin-right: 15%;
 }
 
 canvas {
-    border: 1px solid black;
-}
-
-#tetris {
-    background: #545355;
+    border: 2px solid transparent;
     border-radius: 10px;
+    background:
+        linear-gradient(#333, #333) padding-box,
+        linear-gradient(180deg, rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1),
+        rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
 }
 
 #playbutton {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     padding: 10px;
-    background-color: #666567;
-    color: #fff;
-    border: 1px solid black;
+    border: 2px solid transparent;
     border-radius: 10px;
+    background:
+        linear-gradient(#333, #333) padding-box,
+        linear-gradient(180deg, rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1),
+        rgba(97, 246, 123, 1)) border-box;
     cursor: pointer;
     font-size: 16px;
 }
+
 #tutorialButton {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     padding: 10px;
-    background-color: #666567;
-    color: #fff;
-    border: 1px solid black;
+    border: 2px solid transparent;
     border-radius: 10px;
+    background:
+        linear-gradient(#333, #333) padding-box,
+        linear-gradient(180deg,
+        rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
     cursor: pointer;
     font-size: 16px;
 }
@@ -78,17 +83,17 @@ button:hover {
 #tutorialMessage {
     display: none;
     position: absolute;
-    top: 37%; /* Ajuste este valor conforme necessário */
+    top: 37%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 17px;
     font-family: Arial, sans-serif;
     color: white;
     background-color: #666464;
-    padding: 20px 40px; /* Ajuste o padding horizontal (20px) e vertical (40px) conforme necessário */
+    padding: 20px 40px;
     border-radius: 10px;
-    border: 2px solid #000000cc; /* Especifique a largura (2px) e a cor da borda (#800707cc) */
-    width: 300px; /* Ajuste a largura conforme necessário */
+    border: 2px solid #000000cc;
+    width: 300px;
     opacity: 80%;
 }
 
@@ -102,8 +107,10 @@ button:hover {
 }
 
 #closeButton:hover {
-    color: red; /* Altere a cor do "X" quando o mouse passar por cima */
+    color: red;
+    /* Altere a cor do "X" quando o mouse passar por cima */
 }
+
 #score-container {
     position: absolute;
     top: 70%;
@@ -151,9 +158,11 @@ button:hover {
 }
 
 #nextPieceCanvas1 {
-    background: #545355;
+    border: 2px solid transparent;
     border-radius: 10px;
-    border: 1px solid black;
+    background:
+        linear-gradient(#333, #333) padding-box,
+        linear-gradient(180deg,rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1), rgba(97, 246, 123, 1)) border-box;
 }
 
 #nextPiece1 {
@@ -166,10 +175,13 @@ button:hover {
     color: white;
     font-weight: bold;
 }
+
 #nextPieceCanvas2 {
-    background: #545355;
+    border: 2px solid transparent;
     border-radius: 10px;
-    border: 1px solid black;
+    background:
+        linear-gradient(#333, #333) padding-box,
+        linear-gradient(180deg,rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
 }
 
 #nextPiece2 {
