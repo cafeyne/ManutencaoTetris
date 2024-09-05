@@ -191,6 +191,7 @@ function tick() {
         if (lose) {
             clearAllIntervals();
             document.getElementById('gameOverMessage').style.display = 'block';
+            document.getElementById('tutorialButton').disabled = false;
             document.getElementById('playbutton').disabled = false;
             document.getElementById('finalScore').innerText = score; 
             return false;
@@ -334,6 +335,7 @@ function playButtonClicked() {
     document.getElementById('gameOverMessage').style.display = 'none';//
     newGame();//
     document.getElementById("playbutton").disabled = true;//
+    document.getElementById("tutorialButton").disabled = true;
 }
 
 function newGame() {
@@ -348,6 +350,7 @@ function newGame() {
 function clearAllIntervals(){
     clearInterval( interval );
     clearInterval( intervalRender );
+    document.getElementById("tutorialButton").disabled = false;
 }
 
 function updateScore() {
@@ -385,11 +388,13 @@ window.onload = function() {
 function toggleTutorial() {
     var tutorialMessage = document.getElementById('tutorialMessage');
     var displayStyle = tutorialMessage.style.display;
-    if (displayStyle === 'none') {
+    if (displayStyle === 'none' || displayStyle === '') {
         tutorialMessage.style.display = 'block';
         document.getElementById('playbutton').disabled = true;
     } else {
         tutorialMessage.style.display = 'none';
-        document.getElementById('playbutton').disabled = false;
+        if (!interval) {
+            document.getElementById('playbutton').disabled = false;
+        }
     }
 };

@@ -90,10 +90,11 @@ button:hover {
     font-family: Arial, sans-serif;
     color: white;
     background-color: #666464;
-    padding: 20px 40px;
+    padding: 30px 50px;
     border-radius: 10px;
     border: 2px solid #000000cc;
-    width: 300px;
+    width: 250px;
+    height: 400px;
     opacity: 80%;
 }
 
