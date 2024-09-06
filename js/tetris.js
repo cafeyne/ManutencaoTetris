@@ -24,7 +24,7 @@ var shapes = [
       1, 1, 1 ]
 ];
 var colors = [
-    'cyan', 'orange', 'blue', 'yellow', 'red', 'green', 'purple'
+    'rgba(97, 200, 246, 1)', 'rgba(246, 192, 97, 1)', 'rgba(99, 79, 253, 1)', 'rgba(218, 246, 97, 1)', 'rgba(253, 76, 76, 1)', 'rgba(97, 246, 123, 1)', 'rgba(214, 74, 255, 1)'
 ];
 
 // Função para gerar uma peça aleatória

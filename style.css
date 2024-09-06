@@ -2,9 +2,19 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom, #1E1B22, #5F5F5F);
-    height: 100vh;
+    background-image: url('icons/textura.png');
+    /* Insira o caminho correto da imagem */
+    background-size: cover;
+    /* Faz a imagem cobrir todo o fundo */
+    background-position: center;
+    /* Centraliza a imagem */
+    background-repeat: no-repeat;
+    /* Evita repetição da imagem */
+    background-attachment: fixed;
+    /* Fixa a imagem no fundo ao rolar */
     margin: 0;
+    padding: 0;
+    height: 100vh;
     font-family: Arial, sans-serif;
 }
 
@@ -23,24 +33,24 @@ body {
 }
 
 canvas {
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     background:
         linear-gradient(#333, #333) padding-box,
         linear-gradient(180deg, rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1),
-        rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
+            rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
 }
 
 #playbutton {
     width: 80px;
     height: 80px;
     padding: 10px;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     background:
         linear-gradient(#333, #333) padding-box,
         linear-gradient(180deg, rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1),
-        rgba(97, 246, 123, 1)) border-box;
+            rgba(97, 246, 123, 1)) border-box;
     cursor: pointer;
     font-size: 16px;
 }
@@ -49,12 +59,12 @@ canvas {
     width: 80px;
     height: 80px;
     padding: 10px;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     background:
         linear-gradient(#333, #333) padding-box,
         linear-gradient(180deg,
-        rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
+            rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
     cursor: pointer;
     font-size: 16px;
 }
@@ -118,11 +128,28 @@ button:hover {
     left: 64%;
     font-family: Arial, sans-serif;
     font-size: 18px;
-    margin-left: 20px;
     font-weight: bold;
     color: white;
+    display: grid;
+    gap: 10px;
 }
 
+#highscoreContain,
+#scoreContain {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    width: 180px;
+    height: 15px;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background:
+        linear-gradient(#333, #333) padding-box,
+        linear-gradient(90deg, rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1),
+            rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
+}
 
 #gameOverMessage {
     display: none;
@@ -159,17 +186,19 @@ button:hover {
 }
 
 #nextPieceCanvas1 {
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     background:
         linear-gradient(#333, #333) padding-box,
-        linear-gradient(180deg,rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1), rgba(97, 246, 123, 1)) border-box;
+        linear-gradient(180deg, rgba(253, 76, 76, 1), rgba(246, 192, 97, 1), rgba(218, 246, 97, 1), rgba(97, 246, 123, 1)) border-box;
 }
 
+#next-container {
+    margin-top: 5%;
+    left: 65%;
+}
 #nextPiece1 {
     position: absolute;
-    top: 5%;
-    left: 65%;
     text-align: center;
     font-family: Arial, sans-serif;
     font-size: 15px;
@@ -178,20 +207,159 @@ button:hover {
 }
 
 #nextPieceCanvas2 {
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     background:
         linear-gradient(#333, #333) padding-box,
-        linear-gradient(180deg,rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
+        linear-gradient(180deg, rgba(97, 246, 123, 1), rgba(97, 200, 246, 1), rgba(99, 79, 253, 1), rgba(214, 74, 255, 1)) border-box;
 }
 
 #nextPiece2 {
     position: absolute;
     top: 27%;
-    left: 65%;
     text-align: center;
     font-family: Arial, sans-serif;
     font-size: 15px;
     color: white;
     font-weight: bold;
+}
+
+/* CSS Base existente para 1366x768 */
+
+/* Responsividade para telas maiores, como 1920x1080 */
+@media screen and (min-width: 1367px) {
+    #game-container {
+        margin-right: 20%;
+    }
+
+    #button-container {
+        margin-top: 70%;
+        margin-right: 10%;
+    }
+
+    #playbutton,
+    #tutorialButton {
+        width: 90px;
+        height: 90px;
+        font-size: 18px;
+    }
+
+    #score-container {
+        font-size: 20px;
+        top: 60%;
+        left: 60%;
+    }
+
+    #highscoreContain,
+    #scoreContain {
+        width: 220px;
+        height: 20px;
+    }
+
+    #next-container {
+        top: 10%;
+        left: 70%;
+    }
+
+    #nextPiece1,
+    #nextPiece2 {
+        font-size: 17px;
+    }
+
+    #nextPieceCanvas1,
+    #nextPieceCanvas2 {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+/* Responsividade para tablets (resoluções intermediárias) */
+@media screen and (max-width: 1366px) {
+    #game-container {
+        margin-right: 15%;
+    }
+
+    #button-container {
+        margin-top: 90%;
+        margin-right: 15%;
+    }
+
+    #playbutton,
+    #tutorialButton {
+        width: 80px;
+        height: 80px;
+        font-size: 14px;
+    }
+
+    #score-container {
+        font-size: 16px;
+        top: 70%;
+        left: 65%;
+    }
+
+    #highscoreContain,
+    #scoreContain {
+        width: 160px;
+        height: 15px;
+    }
+
+    #nextPiece1,
+    #nextPiece2 {
+        font-size: 14px;
+        left: 65%;
+    }
+
+    #nextPieceCanvas1,
+    #nextPieceCanvas2 {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* Responsividade para dispositivos móveis (resoluções menores) */
+@media screen and (max-width: 768px) {
+    body {
+        background-size: contain;
+    }
+
+    #game-container {
+        flex-direction: column;
+        margin-right: 0;
+    }
+
+    #button-container {
+        margin-top: 90%;
+        margin-right: 0;
+        align-items: center;
+    }
+
+    #playbutton,
+    #tutorialButton {
+        width: 50px;
+        height: 50px;
+        font-size: 12px;
+    }
+
+    #score-container {
+        font-size: 14px;
+        top: 80%;
+        left: 55%;
+    }
+
+    #highscoreContain,
+    #scoreContain {
+        width: 140px;
+        height: 10px;
+    }
+
+    #nextPiece1,
+    #nextPiece2 {
+        font-size: 12px;
+    }
+
+    #nextPieceCanvas1,
+    #nextPieceCanvas2 {
+        width: 80px;
+        height: 80px;
+    }
 }
