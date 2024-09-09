@@ -178,26 +178,50 @@ function init() {
     updateScore();
 }
 
-// keep the element moving down, creating new shapes and clearing lines
+// Função principal que move a peça
 function tick() {
-    if ( valid( 0, 1 ) ) {
-        ++currentY;
+    if (canMoveDown()) {
+        moveDownPiece();
+    } else {
+        handlePieceFreezing();
     }
-    // if the element settled
-    else {
-        freeze();
-        valid(0, 1);
+}
+
+// Verifica se a peça pode continuar se movendo para baixo
+function canMoveDown() {
+    return valid(0, 1);
+}
+
+// Movimenta a peça para baixo
+function moveDownPiece() {
+    ++currentY;
+}
+
+// Lida com o congelamento da peça e verificação de fim de jogo
+function handlePieceFreezing() {
+    freeze();
+    valid(0, 1);
+    
+    if (isGameOver()) {
+        endGame();
+    } else {
         clearLines();
-        if (lose) {
-            clearAllIntervals();
-            document.getElementById('gameOverMessage').style.display = 'block';
-            document.getElementById('tutorialButton').disabled = false;
-            document.getElementById('playbutton').disabled = false;
-            document.getElementById('finalScore').innerText = score; 
-            return false;
-        }
         newShape();
     }
+}
+
+// Verifica se o jogo acabou (se a peça chegou no topo e está congelada)
+function isGameOver() {
+    return lose;
+}
+
+// Função que termina o jogo
+function endGame() {
+    clearAllIntervals();
+    document.getElementById('gameOverMessage').style.display = 'block';
+    document.getElementById('tutorialButton').disabled = false;
+    document.getElementById('playbutton').disabled = false;
+    document.getElementById('finalScore').innerText = score; 
 }
 
 // stop shape at its position and fix it to board
