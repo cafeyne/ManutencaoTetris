@@ -1,424 +1,453 @@
-var COLS = 10, ROWS = 20;
-var board = [];
-var lose;
-var interval;
-var intervalRender;
-var current; // current moving shape
-var currentX, currentY; // position of current shape
-var freezed; // is current shape settled on the board?
-var nextPiece; // Variavel para gerar a proxima peça
-var score; // pontuação do jogador
-var shapes = [
-    [ 1, 1, 1, 1 ],
-    [ 1, 1, 1, 0,
-      1 ],
-    [ 1, 1, 1, 0,
-      0, 0, 1 ],
-    [ 1, 1, 0, 0,
-      1, 1 ],
-    [ 1, 1, 0, 0,
-      0, 1, 1 ],
-    [ 0, 1, 1, 0,
-      1, 1 ],
-    [ 0, 1, 0, 0,
-      1, 1, 1 ]
-];
-var colors = [
-    'rgba(97, 200, 246, 1)', 'rgba(246, 192, 97, 1)', 'rgba(99, 79, 253, 1)', 'rgba(218, 246, 97, 1)', 'rgba(253, 76, 76, 1)', 'rgba(97, 246, 123, 1)', 'rgba(214, 74, 255, 1)'
-];
-
-// Função para gerar uma peça aleatória
-function generateRandomPiece() {
-    var id = Math.floor( Math.random() * shapes.length );
-    var shape = shapes[ id ];
-    return { shape: shape, id: id };
-}
-
-// Cria uma nova peça 4x4 na variável global 'current'
-// 4x4 para cobrir o tamanho quando a forma é rotacionada
-function newShape() {
-    if (!nextPiece) {
-        nextPiece = generateRandomPiece();
-        nextNextPiece = generateRandomPiece();
-    }
-
-    var id = nextPiece.id;
-    var shape = nextPiece.shape;
-
-    current = [];
-    for ( var y = 0; y < 4; ++y ) {
-        current[ y ] = [];
-        for ( var x = 0; x < 4; ++x ) {
-            var i = 4 * y + x;
-            if ( typeof shape[ i ] != 'undefined' && shape[ i ] ) {
-                current[ y ][ x ] = id + 1;
-            }
-            else {
-                current[ y ][ x ] = 0;
-            }
+class Board {
+  constructor(rows, cols) {
+    this.rows = rows;
+    this.cols = cols;
+    this.board = Array.from({ length: rows }, () => Array(cols).fill(0));
+  }
+  //renderBoard
+  draw(ctx, colors) {
+    ctx.strokeStyle = 'black';
+    for (let x = 0; x < this.cols; ++x) {
+      for (let y = 0; y < this.rows; ++y) {
+        if (this.board[y][x]) {
+          ctx.fillStyle = colors[this.board[y][x] - 1];
+          this.drawBlock(ctx, x, y);
         }
+      }
     }
+  }
 
-    nextPiece = nextNextPiece;
-    nextNextPiece = generateRandomPiece();
+  drawBlock(ctx, x, y) {
+    const BLOCK_W = 300 / this.cols;
+    const BLOCK_H = 600 / this.rows;
+    ctx.fillRect(BLOCK_W * x, BLOCK_H * y, BLOCK_W - 1, BLOCK_H - 1);
+    ctx.strokeRect(BLOCK_W * x, BLOCK_H * y, BLOCK_W - 1, BLOCK_H - 1);
+  }
 
-    drawNextPiece('nextPieceCanvas1', nextPiece);
-    drawNextNextPiece('nextPieceCanvas2', nextNextPiece);
+  clearCanvas() {
+    var canvas = document.getElementsByTagName('canvas')[0];
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 
-    // A nova peça começa a se mover
-    freezed = false;
-    // Posição onde a peça evoluirá
-    currentX = 4;
-    currentY = 0;
-}
-
-// Desenha a próxima peça no canvas nextPieceCanvas
-function drawNextPiece(canvasId, piece) {
-    const canvas = document.getElementById(canvasId);
-
-    if (!canvas) {
-        console.error(`Canvas with id ${canvasId} not found`);
-        return;
+  clearLines() {
+    for (let y = this.rows - 1; y >= 0; --y) {
+      if (this.isRowFilled(y)) {
+        this.clearAndMoveLines(y);
+        score += 100;
+        updateScore();
+      }
     }
-    
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
+  }
 
-    var shape = piece.shape;
-    var id = piece.id;
+  isRowFilled(y) {
+    return this.board[y].every((cell) => cell !== 0);
+  }
 
-    // Calcula a largura e altura da peça
-    var minX = 4, maxX = 0, minY = 4, maxY = 0;
-    for (var y = 0; y < 4; ++y) {
-        for (var x = 0; x < 4; ++x) {
-            var i = 4 * y + x;
-            if (shape[i]) {
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
-            }
-        }
-    }
-
-    var pieceWidth = maxX - minX + 1;
-    var pieceHeight = maxY - minY + 1;
-
-    // Calcula o offset para centralizar a peça
-    var offsetX = Math.floor((canvas.width - pieceWidth * 20) / 2);
-    var offsetY = Math.floor((canvas.height - pieceHeight * 20) / 2);
-
-    context.fillStyle = colors[id]; // Define a cor da peça
-    for (var y = 0; y < 4; ++y) { 
-        for (var x = 0; x < 4; ++x) {
-            var i = 4 * y + x;
-            if (shape[i]) {
-                context.fillRect(offsetX + (x - minX) * 20, offsetY + (y - minY) * 20, 20, 20);
-            }
-        }
-    }
-}
-
-// Desenha a próxima da próxima peça no canvas nextPieceCanvas2
-function drawNextNextPiece(canvasId, piece) {
-    const canvas = document.getElementById(canvasId);
-
-    if (!canvas) {
-        console.error(`Canvas with id ${canvasId} not found`);
-        return;
-    }
-    
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    var shape = piece.shape;
-    var id = piece.id;
-
-    // Calcula a largura e altura da peça
-    var minX = 4, maxX = 0, minY = 4, maxY = 0;
-    for (var y = 0; y < 4; ++y) {
-        for (var x = 0; x < 4; ++x) {
-            var i = 4 * y + x;
-            if (shape[i]) {
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
-            }
-        }
-    }
-
-    var pieceWidth = maxX - minX + 1;
-    var pieceHeight = maxY - minY + 1;
-
-    // Calcula o offset para centralizar a peça
-    var offsetX = Math.floor((canvas.width - pieceWidth * 20) / 2);
-    var offsetY = Math.floor((canvas.height - pieceHeight * 20) / 2);
-
-    context.fillStyle = colors[id]; // Define a cor da peça
-    for (var y = 0; y < 4; ++y) { 
-        for (var x = 0; x < 4; ++x) {
-            var i = 4 * y + x;
-            if (shape[i]) {
-                context.fillRect(offsetX + (x - minX) * 20, offsetY + (y - minY) * 20, 20, 20);
-            }
-        }
-    }
-}
-// clears the board
-function init() {
-    for ( var y = 0; y < ROWS; ++y ) {
-        board[ y ] = [];
-        for ( var x = 0; x < COLS; ++x ) {
-            board[ y ][ x ] = 0;
-        }
-    }
-    score = 0; 
-    loadHighScore();
-    updateScore();
-}
-
-// Função principal que move a peça
-function tick() {
-    if (canMoveDown()) {
-        moveDownPiece();
-    } else {
-        handlePieceFreezing();
-    }
-}
-
-// Verifica se a peça pode continuar se movendo para baixo
-function canMoveDown() {
-    return valid(0, 1);
-}
-
-// Movimenta a peça para baixo
-function moveDownPiece() {
-    ++currentY;
-}
-
-// Lida com o congelamento da peça e verificação de fim de jogo
-function handlePieceFreezing() {
-    freeze();
-    valid(0, 1);
-    
-    if (isGameOver()) {
-        endGame();
-    } else {
-        clearLines();
-        newShape();
-    }
-}
-
-// Verifica se o jogo acabou (se a peça chegou no topo e está congelada)
-function isGameOver() {
-    return lose;
-}
-
-// Função que termina o jogo
-function endGame() {
-    clearAllIntervals();
-    document.getElementById('gameOverMessage').style.display = 'block';
-    document.getElementById('tutorialButton').disabled = false;
-    document.getElementById('playbutton').disabled = false;
-    document.getElementById('finalScore').innerText = score; 
-}
-
-// stop shape at its position and fix it to board
-function freeze() {
-    for ( var y = 0; y < 4; ++y ) {
-        for ( var x = 0; x < 4; ++x ) {
-            if ( current[ y ][ x ] ) {
-                board[ y + currentY ][ x + currentX ] = current[ y ][ x ];
-            }
-        }
-    }
-    freezed = true;
-}
-
-// returns rotates the rotated shape 'current' perpendicularly anticlockwise
-function rotate( current ) {
-    var newCurrent = [];
-    for ( var y = 0; y < 4; ++y ) {
-        newCurrent[ y ] = [];
-        for ( var x = 0; x < 4; ++x ) {
-            newCurrent[ y ][ x ] = current[ 3 - x ][ y ];
-        }
-    }
-
-    return newCurrent;
-}
-
-// Verifica se a linha será limpa
-function clearLines() {
-    for (var y = ROWS - 1; y >= 0; --y) {
-        if (isRowFilled(y)) {
-            clearAndMoveLines(y);
-            score += 100; 
-            updateScore();
-        }
-    }
-}
-
-// Verifica se a linha está preenchida
-function isRowFilled(y) {
-    for (var x = 0; x < COLS; ++x) {
-        if (board[y][x] == 0) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Limpa a linha e move as linhas acima para baixo
-function clearAndMoveLines(y) {
+  clearAndMoveLines(y) {
     document.getElementById('clearsound').play();
     for (var yy = y; yy > 0; --yy) {
-        for (var x = 0; x < COLS; ++x) {
-            board[yy][x] = board[yy - 1][x];
+      for (var x = 0; x < this.cols; ++x) {
+        this.board[yy][x] = this.board[yy - 1][x];
+      }
+    }
+    for (var x = 0; x < this.cols; ++x) {
+      this.board[0][x] = 0;
+    }
+  }
+
+  // stop shape at its position and fix it to board
+  freeze(piece, currentX, currentY) {
+    current = piece.current
+    for (var y = 0; y < 4; ++y) {
+      for (var x = 0; x < 4; ++x) {
+        if (current[y][x]) {
+          this.board[y + currentY][x + currentX] = current[y][x];
         }
+      }
     }
-    for (var x = 0; x < COLS; ++x) {
-        board[0][x] = 0;
-    }
+    freezed = true;
+  }
 }
 
-function moveLeft() {
-    if (valid(-1)) {
-        --currentX;
-    }
-}
+class Player {
+  constructor() {
+    this.score = 0;
+    this.highscore = 0;
+  }
 
-function moveDown() {
-    if (valid(0, 1)) {
-        ++currentY;
-    }
-}
+  updateScore() {
+    document.getElementById('score').innerText = this.score;
+  }
 
-function keyPress(key) {
-    switch (key) {
-        case 'left':
-            moveLeft();
-            break;
-        case 'right':
-            if (valid(1)) {
-                ++currentX;
-            }
-            break;
-        case 'down':
-            moveDown();
-            break;
-        case 'rotate':
-            var rotated = rotate(current);
-            if (valid(0, 0, rotated)) {
-                current = rotated;
-            }
-            break;
-        case 'drop':
-            while (valid(0, 1)) {
-                ++currentY;
-            }
-            tick();
-            break;
-    }
-}
-
-
-// checks if the resulting position of current shape will be feasible
-function valid( offsetX, offsetY, newCurrent ) {
-    offsetX = offsetX || 0;
-    offsetY = offsetY || 0;
-    offsetX = currentX + offsetX;
-    offsetY = currentY + offsetY;
-    newCurrent = newCurrent || current;
-
-    for ( var y = 0; y < 4; ++y ) {
-        for ( var x = 0; x < 4; ++x ) {
-            if ( newCurrent[ y ][ x ] ) {
-                if ( typeof board[ y + offsetY ] == 'undefined'
-                  || typeof board[ y + offsetY ][ x + offsetX ] == 'undefined'
-                  || board[ y + offsetY ][ x + offsetX ]
-                  || x + offsetX < 0
-                  || y + offsetY >= ROWS
-                  || x + offsetX >= COLS ) {
-                    if (offsetY == 1 && freezed) {
-                        lose = true; // lose if the current shape is settled at the top most row
-                        document.getElementById('playbutton').disabled = false;
-                        updateHighScore();
-                        document.getElementById('finalhighScore').innerText = highscore;
-                    } 
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-function playButtonClicked() {
-    document.getElementById('gameOverMessage').style.display = 'none';//
-    newGame();//
-    document.getElementById("playbutton").disabled = true;//
-    document.getElementById("tutorialButton").disabled = true;
-}
-
-function newGame() {
-    clearAllIntervals();
-    intervalRender = setInterval( render, 30 );
-    init();
-    newShape();
-    lose = false;
-    interval = setInterval( tick, 400 );
-}
-
-function clearAllIntervals(){
-    clearInterval( interval );
-    clearInterval( intervalRender );
-    document.getElementById("tutorialButton").disabled = false;
-}
-
-function updateScore() {
-    document.getElementById('score').innerText = score;
-}
-
-function loadHighScore() {
+  loadHighScore() {
     let savedHighScore = localStorage.getItem('highscore');
     if (savedHighScore !== null) {
-        highscore = parseInt(savedHighScore);
+      this.highscore = parseInt(savedHighScore);
     } else {
-        highscore = 0;
+      this.highscore = 0;
     }
-    document.getElementById('highscore').innerText = highscore;
-}
+    document.getElementById('highscore').innerText = this.highscore;
+  }
 
-function saveHighScore() {
-    localStorage.setItem('highscore', highscore);
-}
+  saveHighScore() {
+    localStorage.setItem('highscore', this.highscore);
+  }
 
-function updateHighScore() {
-    if (score > highscore) {
-        highscore = score;
-        document.getElementById('highscore').innerText = highscore;
-        saveHighScore();
-    } else {
-        document.getElementById('highscore').innerText = highscore;
+  updateHighScore() {
+    if (this.score > this.highscore) {
+      this.highscore = this.score;
+      this.saveHighScore();
     }
+    document.getElementById('highscore').innerText = this.highscore;
+  }
 }
 
-window.onload = function() {
-    loadHighScore();
-}
+class Piece {
+  constructor(id, shape) {
+    this.id = id;
+    this.shape = shape;
+    this.current = this.arrayToMatrix(this.shape);
+  }
 
-function toggleTutorial() {
-    var tutorialMessage = document.getElementById('tutorialMessage');
-    var displayStyle = tutorialMessage.style.display;
-    if (displayStyle === 'none' || displayStyle === '') {
-        tutorialMessage.style.display = 'block';
-        document.getElementById('playbutton').disabled = true;
-    } else {
-        tutorialMessage.style.display = 'none';
-        if (!interval) {
-            document.getElementById('playbutton').disabled = false;
+  // returns rotates the rotated shape 'current' perpendicularly anticlockwise
+  rotate() {
+    var newCurrent = [];
+    for (var y = 0; y < 4; ++y) {
+      newCurrent[y] = [];
+      for (var x = 0; x < 4; ++x) {
+        newCurrent[y][x] = this.current[3 - x][y];
+      }
+    }
+    this.current = newCurrent;
+  }
+
+  arrayToMatrix(array) {
+    let matrix = [];
+
+    for (var y = 0; y < 4; ++y) {
+      matrix[y] = [];
+      for (var x = 0; x < 4; ++x) {
+        var i = 4 * y + x;
+        if (typeof array[i] != 'undefined' && array[i]) {
+          matrix[y][x] = id + 1;
+        } else {
+          matrix[y][x] = 0;
         }
+      }
     }
+    return matrix;
+  }
+}
+
+class Game {
+  constructor(board, player) {
+    this.board = board;
+    this.player = player;
+    this.currentPiece = null;
+    this.currentX = 0;
+    this.currentY = 0;
+    this.freezed = false;
+    this.nextPiece = null;
+    this.nextNextPiece = null;
+    this.lose = false;
+    this.interval = null;
+    this.intervalRender = null;
+    this.shapes = [
+      [1, 1, 1, 1],
+      [1, 1, 1, 0, 1],
+      [1, 1, 1, 0, 0, 0, 1],
+      [1, 1, 0, 0, 1, 1],
+      [1, 1, 0, 0, 0, 1, 1],
+      [0, 1, 1, 0, 1, 1],
+      [0, 1, 0, 0, 1, 1, 1],
+    ];
+    this.colors = [
+      'rgba(97, 200, 246, 1)',
+      'rgba(246, 192, 97, 1)',
+      'rgba(99, 79, 253, 1)',
+      'rgba(218, 246, 97, 1)',
+      'rgba(253, 76, 76, 1)',
+      'rgba(97, 246, 123, 1)',
+      'rgba(214, 74, 255, 1)',
+    ];
+  }
+
+  generateRandomPiece() {
+    const id = Math.floor(Math.random() * this.shapes.length);
+    const shape = this.shapes[id];
+    return new Piece(id, shape);
+  }
+
+  arrayToMatrix(array) {
+    let matrix = [];
+
+    for (var y = 0; y < 4; ++y) {
+      matrix[y] = [];
+      for (var x = 0; x < 4; ++x) {
+        var i = 4 * y + x;
+        if (typeof array[i] != 'undefined' && array[i]) {
+          matrix[y][x] = id + 1;
+        } else {
+          matrix[y][x] = 0;
+        }
+      }
+    }
+    return matrix;
+  }
+
+  newShape() {
+    if (!this.nextPiece) {
+      this.nextPiece = this.generateRandomPiece();
+      this.nextNextPiece = this.generateRandomPiece();
+    }
+
+    this.currentPiece = this.nextPiece;
+    this.nextPiece = this.nextNextPiece;
+    this.nextNextPiece = this.generateRandomPiece();
+
+    this.drawNextPiece('nextPieceCanvas1', this.nextPiece);
+    this.drawNextNextPiece('nextPieceCanvas2', this.nextNextPiece);
+
+    this.freezed = false;
+    this.currentX = 4;
+    this.currentY = 0;
+  }
+
+  drawNextPiece(canvasId, piece) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      console.error(`Canvas with id ${canvasId} not found`);
+      return;
+    }
+
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    const shape = piece.shape;
+    const id = piece.id;
+
+    const [minX, maxX, minY, maxY] = this.getPieceBounds(shape);
+
+    const pieceWidth = maxX - minX + 1;
+    const pieceHeight = maxY - minY + 1;
+
+    // Calcula o offset para centralizar a peça
+    const offsetX = Math.floor((canvas.width - pieceWidth * 20) / 2);
+    const offsetY = Math.floor((canvas.height - pieceHeight * 20) / 2);
+
+    context.fillStyle = this.colors[id]; // Define a cor da peça
+    for (var y = 0; y < 4; ++y) {
+      for (var x = 0; x < 4; ++x) {
+        var i = 4 * y + x;
+        if (shape[i]) {
+          context.fillRect(offsetX + (x - minX) * 20, offsetY + (y - minY) * 20, 20, 20);
+        }
+      }
+    }
+  }
+
+  drawNextNextPiece(canvasId, piece) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      console.error(`Canvas with id ${canvasId} not found`);
+      return;
+    }
+
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    const shape = piece.shape;
+    const id = piece.id;
+
+    const [minX, maxX, minY, maxY] = this.getPieceBounds(shape);
+
+    const pieceWidth = maxX - minX + 1;
+    const pieceHeight = maxY - minY + 1;
+
+    // Calcula o offset para centralizar a peça
+    const offsetX = Math.floor((canvas.width - pieceWidth * 20) / 2);
+    const offsetY = Math.floor((canvas.height - pieceHeight * 20) / 2);
+
+    context.fillStyle = this.colors[id]; // Define a cor da peça
+    for (var y = 0; y < 4; ++y) {
+      for (var x = 0; x < 4; ++x) {
+        var i = 4 * y + x;
+        if (shape[i]) {
+          context.fillRect(offsetX + (x - minX) * 20, offsetY + (y - minY) * 20, 20, 20);
+        }
+      }
+    }
+  }
+
+  getPieceBounds(shape) {
+    let minX = 4,
+      maxX = 0,
+      minY = 4,
+      maxY = 0;
+    for (let y = 0; y < 4; ++y) {
+      for (let x = 0; x < 4; ++x) {
+        let i = 4 * y + x;
+        if (shape[i]) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    return [minX, maxX, minY, maxY];
+  }
+
+  tick() {
+    if (!this.freezed) {
+      if (this.valid(this.currentX, this.currentY + 1, this.currentPiece)) {
+        this.moveDownPiece();
+      } else {
+        this.handlePieceFreezing();
+      }
+    }
+    this.render();
+  }
+
+  moveDownPiece() {
+    this.currentY++;
+  }
+
+  handlePieceFreezing() {
+    this.board.freeze(this.currentPiece, this.currentX, this.currentY);
+    this.board.clearLines();
+    this.newShape();
+
+    if (!this.valid(this.currentX, this.currentY, this.currentPiece)) {
+      this.lose = true;
+      clearInterval(this.interval);
+      clearInterval(this.intervalRender);
+    }
+  }
+
+  rotate() {
+    const rotated = this.rotatePiece();
+    if (this.valid(this.currentX, this.currentY, rotated)) {
+      this.currentPiece = rotated;
+    }
+  }
+
+  rotatePiece() {
+    const size = this.currentPiece.shape.length;
+    const rotated = Array.from({ length: size }, () => Array(size).fill(0));
+    for (let y = 0; y < size; ++y) {
+      for (let x = 0; x < size; ++x) {
+        rotated[x][size - y - 1] = this.currentPiece.shape[y][x];
+      }
+    }
+    return new Piece(this.currentPiece.id, rotated);
+  }
+
+  moveLeft() {
+    if (this.valid(this.currentX - 1, this.currentY, this.currentPiece)) {
+      this.currentX--;
+    }
+  }
+
+  moveRight() {
+    if (this.valid(this.currentX + 1, this.currentY, this.currentPiece)) {
+      this.currentX++;
+    }
+  }
+
+  moveDown() {
+    this.tick();
+  }
+
+  valid(offsetX, offsetY, newPiece) {
+    for (let y = 0; y < newPiece.shape.length; ++y) {
+      for (let x = 0; x < newPiece.shape[y].length; ++x) {
+        if (newPiece.shape[y][x]) {
+          if (offsetX + x < 0 || offsetX + x >= this.board.cols || offsetY + y >= this.board.rows) {
+            return false;
+          }
+          if (offsetY + y >= 0 && this.board.board[offsetY + y][offsetX + x]) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  playButtonClicked() {
+    if (this.lose) {
+      this.resetGame();
+    }
+    this.startGame();
+  }
+
+  startGame() {
+    this.board = new Board(20, 10); // Reset board
+    this.player = new Player(); // Reset player
+    this.player.loadHighScore(); // Load highscore
+
+    this.newShape();
+    this.lose = false;
+
+    this.interval = setInterval(() => this.tick(), 1000);
+    this.intervalRender = setInterval(() => this.render(), 16);
+  }
+
+  resetGame() {
+    clearInterval(this.interval);
+    clearInterval(this.intervalRender);
+  }
+
+  render() {
+    //const canvas = document.getElementById('tetris');
+    var canvas = document.getElementsByTagName('canvas')[0];
+
+    if (!canvas) {
+      console.error('Canvas with id tetrisCanvas not found');
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    this.board.draw(ctx, this.colors);
+    this.drawCurrentPiece(ctx, canvas.width, canvas.height);
+  }
+
+  drawCurrentPiece(ctx, canvasWidth, canvasHeight) {
+    if (this.currentPiece) {
+      ctx.fillStyle = 'red';
+      ctx.strokeStyle = 'black';
+      current = this.arrayToMatrix(this.currentPiece.shape);
+
+      for (var y = 0; y < 4; ++y) {
+        for (var x = 0; x < 4; ++x) {
+          if (current[y][x]) {
+            ctx.fillStyle = this.colors[current[y][x] - 1];
+            this.board.drawBlock(this.currentX + x, this.currentY + y);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Vinculando o botão "Play" à função playButtonClicked
+window.onload = () => {
+  const board = new Board(20, 10);
+  const player = new Player();
+  const game = new Game(board, player);
+
+  document.getElementById('playbutton').addEventListener('click', () => {
+    game.playButtonClicked();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') game.moveLeft();
+    if (e.key === 'ArrowRight') game.moveRight();
+    if (e.key === 'ArrowDown') game.moveDown();
+    if (e.key === 'ArrowUp') game.rotate();
+  });
 };
