@@ -30,12 +30,12 @@ class Board {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  clearLines() {
+  clearLines(player) {
     for (let y = this.rows - 1; y >= 0; --y) {
       if (this.isRowFilled(y)) {
         this.clearAndMoveLines(y);
-        score += 100;
-        updateScore();
+        player.score += 100;
+        player.updateScore();
       }
     }
   }
@@ -45,7 +45,7 @@ class Board {
   }
 
   clearAndMoveLines(y) {
-    document.getElementById('clearsound').play();
+    //document.getElementById('clearsound').play();
     for (var yy = y; yy > 0; --yy) {
       for (var x = 0; x < this.cols; ++x) {
         this.board[yy][x] = this.board[yy - 1][x];
@@ -58,7 +58,7 @@ class Board {
 
   // stop shape at its position and fix it to board
   freeze(piece, currentX, currentY) {
-    current = piece.current
+    const current = piece.current;
     for (var y = 0; y < 4; ++y) {
       for (var x = 0; x < 4; ++x) {
         if (current[y][x]) {
@@ -66,7 +66,7 @@ class Board {
         }
       }
     }
-    freezed = true;
+    //freezed = true;
   }
 }
 
@@ -107,7 +107,7 @@ class Piece {
   constructor(id, shape) {
     this.id = id;
     this.shape = shape;
-    this.current = this.arrayToMatrix(this.shape);
+    this.current = this.arrayToMatrix(id, this.shape);
   }
 
   // returns rotates the rotated shape 'current' perpendicularly anticlockwise
@@ -119,10 +119,10 @@ class Piece {
         newCurrent[y][x] = this.current[3 - x][y];
       }
     }
-    this.current = newCurrent;
+    return newCurrent;
   }
 
-  arrayToMatrix(array) {
+  arrayToMatrix(id, array) {
     let matrix = [];
 
     for (var y = 0; y < 4; ++y) {
@@ -299,75 +299,108 @@ class Game {
     return [minX, maxX, minY, maxY];
   }
 
+  // Função principal que move a peça
   tick() {
-    if (!this.freezed) {
-      if (this.valid(this.currentX, this.currentY + 1, this.currentPiece)) {
-        this.moveDownPiece();
-      } else {
-        this.handlePieceFreezing();
-      }
+    if (this.canMoveDown()) {
+      this.moveDownPiece();
+    } else {
+      this.handlePieceFreezing();
     }
-    this.render();
+  }
+  // Verifica se a peça pode continuar se movendo para baixo
+  canMoveDown() {
+    return this.valid(0, 1);
   }
 
   moveDownPiece() {
     this.currentY++;
   }
 
+  // Lida com o congelamento da peça e verificação de fim de jogo
   handlePieceFreezing() {
     this.board.freeze(this.currentPiece, this.currentX, this.currentY);
-    this.board.clearLines();
-    this.newShape();
+    this.freezed = true;
+    this.valid(0, 1);
 
-    if (!this.valid(this.currentX, this.currentY, this.currentPiece)) {
-      this.lose = true;
-      clearInterval(this.interval);
-      clearInterval(this.intervalRender);
+    if (this.lose) {
+      this.endGame();
+    } else {
+      this.board.clearLines(this.player);
+      this.newShape();
     }
   }
 
   rotate() {
-    const rotated = this.rotatePiece();
-    if (this.valid(this.currentX, this.currentY, rotated)) {
-      this.currentPiece = rotated;
+    const rotated = this.currentPiece.rotate();
+    if (this.valid(0, 0, rotated)) {
+      this.currentPiece.current = rotated;
     }
-  }
-
-  rotatePiece() {
-    const size = this.currentPiece.shape.length;
-    const rotated = Array.from({ length: size }, () => Array(size).fill(0));
-    for (let y = 0; y < size; ++y) {
-      for (let x = 0; x < size; ++x) {
-        rotated[x][size - y - 1] = this.currentPiece.shape[y][x];
-      }
-    }
-    return new Piece(this.currentPiece.id, rotated);
   }
 
   moveLeft() {
-    if (this.valid(this.currentX - 1, this.currentY, this.currentPiece)) {
+    if (this.valid(-1)) {
       this.currentX--;
     }
   }
 
   moveRight() {
-    if (this.valid(this.currentX + 1, this.currentY, this.currentPiece)) {
+    if (this.valid(1)) {
       this.currentX++;
     }
   }
 
   moveDown() {
-    this.tick();
+    if (this.valid(0, 1)) {
+      this.currentY++;
+    }
   }
 
-  valid(offsetX, offsetY, newPiece) {
-    for (let y = 0; y < newPiece.shape.length; ++y) {
-      for (let x = 0; x < newPiece.shape[y].length; ++x) {
-        if (newPiece.shape[y][x]) {
-          if (offsetX + x < 0 || offsetX + x >= this.board.cols || offsetY + y >= this.board.rows) {
-            return false;
-          }
-          if (offsetY + y >= 0 && this.board.board[offsetY + y][offsetX + x]) {
+  keyPress(key) {
+    switch (key) {
+      case 'left':
+        this.moveLeft();
+        break;
+      case 'right':
+        this.moveRight();
+        break;
+      case 'down':
+        this.moveDown();
+        break;
+      case 'rotate':
+        this.rotate();
+        break;
+      case 'drop':
+        while (this.valid(0, 1)) {
+          this.currentY++;
+        }
+        this.tick();
+        break;
+    }
+  }
+
+  // checks if the resulting position of current shape will be feasible
+  valid(offsetX, offsetY, newCurrent) {
+    offsetX = offsetX || 0;
+    offsetY = offsetY || 0;
+    offsetX = this.currentX + offsetX;
+    offsetY = this.currentY + offsetY;
+    newCurrent = newCurrent || this.currentPiece.current;
+
+    for (var y = 0; y < 4; ++y) {
+      for (var x = 0; x < 4; ++x) {
+        if (newCurrent[y][x]) {
+          if (
+            typeof this.board.board[y + offsetY] == 'undefined' ||
+            typeof this.board.board[y + offsetY][x + offsetX] == 'undefined' ||
+            this.board.board[y + offsetY][x + offsetX] ||
+            x + offsetX < 0 ||
+            y + offsetY >= this.rows ||
+            x + offsetX >= this.cols
+          ) {
+            if (offsetY == 1 && this.freezed) {
+              this.lose = true; // lose if the current shape is settled at the top most row
+              this.player.updateHighScore();
+            }
             return false;
           }
         }
@@ -383,25 +416,49 @@ class Game {
     this.startGame();
   }
 
+  toggleTutorial() {
+    var tutorialMessage = document.getElementById('tutorialMessage');
+    var displayStyle = tutorialMessage.style.display;
+    if (displayStyle === 'none' || displayStyle === '') {
+      tutorialMessage.style.display = 'block';
+    } else {
+      tutorialMessage.style.display = 'none';
+    }
+  }
+
   startGame() {
     this.board = new Board(20, 10); // Reset board
     this.player = new Player(); // Reset player
     this.player.loadHighScore(); // Load highscore
-
+    this.player.updateScore()
+    this.player.updateHighScore();
     this.newShape();
     this.lose = false;
 
-    this.interval = setInterval(() => this.tick(), 1000);
-    this.intervalRender = setInterval(() => this.render(), 16);
+    this.interval = setInterval(() => this.tick(), 400);
+    this.intervalRender = setInterval(() => this.render(), 30);
+    document.getElementById('tutorialMessage').style.display = 'none';
+    document.getElementById('gameOverMessage').style.display = 'none'; //
+    document.getElementById('playbutton').disabled = true; //
+    document.getElementById('tutorialButton').disabled = true;
   }
 
+  endGame() {
+    this.resetGame();
+    document.getElementById('gameOverMessage').style.display = 'block';
+    document.getElementById('tutorialButton').disabled = false;
+    document.getElementById('playbutton').disabled = false;
+    document.getElementById('finalScore').innerText = this.player.score;
+    document.getElementById('finalhighScore').innerText = this.player.highscore;
+  }
+
+  // clearAllIntervals
   resetGame() {
     clearInterval(this.interval);
     clearInterval(this.intervalRender);
   }
 
   render() {
-    //const canvas = document.getElementById('tetris');
     var canvas = document.getElementsByTagName('canvas')[0];
 
     if (!canvas) {
@@ -420,13 +477,13 @@ class Game {
     if (this.currentPiece) {
       ctx.fillStyle = 'red';
       ctx.strokeStyle = 'black';
-      current = this.arrayToMatrix(this.currentPiece.shape);
+      const current = this.currentPiece.current;
 
       for (var y = 0; y < 4; ++y) {
         for (var x = 0; x < 4; ++x) {
           if (current[y][x]) {
             ctx.fillStyle = this.colors[current[y][x] - 1];
-            this.board.drawBlock(this.currentX + x, this.currentY + y);
+            this.board.drawBlock(ctx, this.currentX + x, this.currentY + y);
           }
         }
       }
@@ -444,10 +501,33 @@ window.onload = () => {
     game.playButtonClicked();
   });
 
+  document.getElementById('newGamebutton').addEventListener('click', () => {
+    game.playButtonClicked();
+  });
+
+  document.getElementById('tutorialButton').addEventListener('click', () => {
+    game.toggleTutorial();
+  });
+
+  document.getElementById('closeTutorial').addEventListener('click', () => {
+    game.toggleTutorial();
+  });
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') game.moveLeft();
-    if (e.key === 'ArrowRight') game.moveRight();
-    if (e.key === 'ArrowDown') game.moveDown();
-    if (e.key === 'ArrowUp') game.rotate();
+    var keys = {
+      37: 'left',
+      39: 'right',
+      40: 'down',
+      38: 'rotate',
+      32: 'drop',
+      65: 'left', // Tecla A
+      68: 'right', // Tecla D
+      83: 'down', // Tecla S
+      87: 'rotate', // Tecla W
+    };
+
+    if (typeof keys[e.keyCode] != 'undefined') {
+      game.keyPress(keys[e.keyCode]);
+    }
   });
 };

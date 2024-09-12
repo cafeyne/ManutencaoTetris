@@ -19,14 +19,14 @@
             <button id="playbutton">
                 <img src="icons/botao-play.png" alt="Play">
             </button>
-            <button id="tutorialButton" onclick="toggleTutorial();">
+            <button id="tutorialButton">
                 <img src="icons/pergunta.png" alt="Tutorial">
             </button>
             <div id="gameOverMessage">
                 <p>FIM DE JOGO!</p>
                 <p>Pontuação: <span id="finalScore"></span></p>
                 <p>Melhor Pontuação: <span id="finalhighScore"></span></p>
-                <button onclick="playButtonClicked()">Recomeçar</button>
+                <button id="newGamebutton">Recomeçar</button>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
     </div>
 
     <div id="tutorialMessage">
-        <div id="closeButton" onclick="toggleTutorial();">X</div>
+        <div id="closeTutorial">X</div>
         <p><strong>Como jogar:</strong></p>
         <p>
             <span style="font-size: 24px;">&#8592;</span> <span style="font-size: 24px;">&#8594;</span>
