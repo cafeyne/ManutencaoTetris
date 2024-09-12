@@ -1,42 +1,79 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>HTML5 Tetris</title>
-        <link rel='stylesheet' href='style.css' />
-    </head>
-    <body>
-        <audio id="clearsound" src="sound/pop.ogg" preload="auto"></audio>
-        <div id="score-container">
-            <div>Score:</div>
-            <div id="score">0</div>
-            <div style="margin-left: 20px;">Highscore:</div>
-            <div id="highscore">0</div>
+  <head>
+    <title>HTML5 Tetris</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <audio id="clearsound">
+      <source src="sound/pop.ogg" type="audio/ogg" />
+    </audio>
+
+    <div id="game-container">
+      <div id="button-container">
+        <button id="playbutton">
+          <img src="icons/botao-play.png" alt="Play" />
+        </button>
+        <button id="tutorialButton">
+          <img src="icons/pergunta.png" alt="Tutorial" />
+        </button>
+        <div id="gameOverMessage">
+          <p>FIM DE JOGO!</p>
+          <p>Pontuação: <span id="finalScore"></span></p>
+          <p>Melhor Pontuação: <span id="finalhighScore"></span></p>
+          <button id="newGamebutton">Recomeçar</button>
         </div>
-        <canvas width="300" height="600"></canvas>
-        <div class="header">
-            <button id="playbutton" onclick="playButtonClicked();">Jogar</button>
-            <button id="tutorialButton" onclick="toggleTutorial();">Tutorial</button>
-            <div id="gameOverMessage">
-                <p>FIM DE JOGO!</p>
-                <p>Pontuação: <span id="finalScore"></span></p>
-                <p>Melhor Pontuação: <span id="finalhighScore"></span></p>
-                <button onclick="playButtonClicked()">Recomeçar</button>
-            </div>
+      </div>
+
+      <canvas id="tetris" width="300" height="600"></canvas>
+
+      <div id="next-container">
+        <div id="nextPiece1">
+          <div>Próxima Peça:</div>
+          <canvas id="nextPieceCanvas1" width="115" height="105"></canvas>
         </div>
-        <div id="nextPiece">
-            <div>Próxima Peça:</div>
-            <canvas id="nextPieceCanvas" width="80" height="80"></canvas>
+        <div id="nextPiece2">
+          <div>Próxima Peça:</div>
+          <canvas id="nextPieceCanvas2" width="115" height="105"></canvas>
         </div>
-        <div id="tutorialMessage">
-            <div id="closeButton" onclick="toggleTutorial();">X</div>
-            <p><strong>Como jogar:</strong></p>
-            <p>Setas direcionais < >: movimetam as peças para os lados </p>
-            <p>Seta direcional para cima: muda a posição da peça</p>
-            <p>Seta direcional para baixo: aumenta a velocidade a qual desce as peças</p>
-            <p><strong>Objetivo:</strong> combinar peças para limpar as linhas sem deixar que uma peça toque no topo da tela</p>
+      </div>
+      <div id="score-container">
+        <div id="highscoreContain">
+          Highscore:
+          <div id="highscore">0</div>
         </div>
-        <script src='js/tetris.js'></script>
-        <script src='js/controller.js'></script>
-        <script src='js/render.js'></script>
-    </body>
+        <div id="scoreContain">
+          Score:
+          <div id="score">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tutorialMessage">
+      <div id="closeTutorial">X</div>
+      <p><strong>Como jogar:</strong></p>
+      <p>
+        <span style="font-size: 24px">&#8592;</span> <span style="font-size: 24px">&#8594;</span> ou Teclas
+        <strong>A</strong> e <strong>D</strong>: Movem as peças para os lados
+      </p>
+      <p>
+        <span style="font-size: 24px">&#8593;</span>
+        ou Tecla <strong>W</strong>: Rotaciona a peça
+      </p>
+      <p>
+        <span style="font-size: 24px">&#8595;</span>
+        ou Tecla <strong>S</strong>: Aumenta a velocidade de descida das peças
+      </p>
+      <p>Barra de espaço: Derruba a peça instantaneamente</p>
+      <p>
+        <strong>Objetivo:</strong> Combine peças para limpar as linhas sem deixar que uma peça toque no topo da tela.
+      </p>
+    </div>
+    <script src="js/tetris.js"></script>
+    <script src="js/Board.js"></script>
+    <script src="js/Game.js"></script>
+    <script src="js/Piece.js"></script>
+    <script src="js/Player.js"></script>
+  </body>
 </html>
