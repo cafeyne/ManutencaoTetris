@@ -124,13 +124,13 @@ button:hover {
 
 #score-container {
     position: absolute;
-    top: 70%;
-    left: 64%;
+    margin-left: 0;
     font-family: Arial, sans-serif;
     font-size: 18px;
     font-weight: bold;
     color: white;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
@@ -250,8 +250,8 @@ button:hover {
 
     #score-container {
         font-size: 20px;
-        top: 60%;
-        left: 60%;
+        top: 70%;
+        left: 54%;
     }
 
     #highscoreContain,
@@ -340,8 +340,6 @@ button:hover {
 
     #score-container {
         font-size: 14px;
-        top: 80%;
-        left: 55%;
     }
 
     #highscoreContain,
